@@ -1,0 +1,1 @@
+# garmin-connect-file-manager
