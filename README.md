@@ -13,3 +13,32 @@
 
 </div>
 
+---
+
+
+## Table of Contents
+
+- [Introduction](#intro_section)
+- [Accessing Your Files](#start_section)
+- [Further Analysis](#Further-Analysis)
+- [Acknowledgements](#Acknowledgments)
+- [Project Details](#Project-Details)
+
+
+## Introduction <a name = "intro_section"></a>
+
+download your garmin activity contents
+
+## Accessing Your Files <a name = "start_section"></a>
+
+## Further Analysis <a name = "start_section"></a>
+
+## Acknowledgements <a name = "acknowledgements"></a>
+
+## Project Details <a name = "start_section"></a>
+
+Author: Lucas Nelson
+
+v0.0 Completed: 2022/03/19
+
+License: MIT License
