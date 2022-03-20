@@ -1,3 +1,5 @@
 # garmin-connect-file-manager
 
-![gcfm_darklogo](https://user-images.githubusercontent.com/78045025/159136844-105eec14-8cce-4411-9c73-cfff622d7101.png)
+![image](https://user-images.githubusercontent.com/78045025/159144654-99ab4f68-eb5f-4819-8806-66761d2037d5.png)
+
+
