@@ -8,22 +8,22 @@ def gather_json_content(json_fp):
 def convert_json_to_df(loaded_json):
     if not type(loaded_json) == list:
         loaded_json = [loaded_json]
-    return pd.DataFrame(loaded_json)[['activityId',
-        'startTimeLocal',
-        'activityType',
-        'calories',
-        'averageHR',
-        'maxHR',
-        'aerobicTrainingEffect',
-        'anaerobicTrainingEffect',
-        'vO2MaxValue',
-        'locationName',
-        'activityTrainingLoad',
-        'aerobicTrainingEffectMessage',
-        'anaerobicTrainingEffectMessage',
-        'moderateIntensityMinutes',
-        'vigorousIntensityMinutes'
-        ]]
+    return pd.DataFrame(loaded_json)# [['activityId',
+    #     'startTimeLocal',
+    #     'activityType',
+    #     'calories',
+    #     'averageHR',
+    #     'maxHR',
+    #     'aerobicTrainingEffect',
+    #     'anaerobicTrainingEffect',
+    #     'vO2MaxValue',
+    #     'locationName',
+    #     'activityTrainingLoad',
+    #     'aerobicTrainingEffectMessage',
+    #     'anaerobicTrainingEffectMessage',
+    #     'moderateIntensityMinutes',
+    #     'vigorousIntensityMinutes'
+    #     ]]
 
 def extract_local_datetime(datetime_col):
     return datetime_col.str.extract('(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})')

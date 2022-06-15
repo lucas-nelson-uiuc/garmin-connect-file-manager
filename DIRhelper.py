@@ -1,22 +1,25 @@
 import os
+import json
+
+from pandas.core.frame import DataFrame
+
 import rich
 from rich.table import Table
-from pandas.core.frame import DataFrame
 
 
 def get_dir_info(dir):
     
-    if len(os.listdir(dir)) == 0:
+    if (len([d for d in os.listdir(dir) if not os.path.isdir(f'{dir}/{d}')]) == len(os.listdir(dir))):
         return {dir : {'empty' : {
             'gpx_files':0, 'gpx_sizes':0,
             'json_files':0, 'json_sizes':0,
-            'pkl_files':0, 'pkl_sixes':0}}}
+            'pkl_files':0, 'pkl_sizes':0}}}
     
     # keep in case merge both dictionaries
     retr_dict = {dir: {}}
     for subdir in sorted(os.listdir(dir)):
         
-        if subdir == '.DS_Store':
+        if (subdir == '.DS_Store') or (subdir.endswith('.pkl')) or (subdir.endswith('.json')):
             continue
         
         retr_dict[dir][subdir] = {
@@ -35,14 +38,35 @@ def get_dir_info(dir):
     
     return retr_dict
 
+
 def dir_info_to_dir_df(dir_info):
+    '''
+    Return dataframe with information of current
+    directory's information, such as total activities,
+    activity types, and corresponding descriptive statistics
+
+    | Parameters |
+    > dir_info
+        Returned value from get_dir_info, a dictionary
+        containing descriptive statistics of a provided directory
+    '''
+
     dir_idxs = list(dir_info.values())[0].keys()
     dir_vals = list(list(dir_info.values())[0].values())
     dir_df = DataFrame(dir_vals, index=dir_idxs)
-    dir_df.loc["Total"] = dir_df.sum()
+    dir_df.loc["TOTAL"] = dir_df.sum()
     return dir_df
 
+
 def print_dir_df(param, dir):
+    '''
+    Display directory statistics to terminal
+
+    | Parameters |
+    > param
+    > dir
+    '''
+
     dir_df = dir_info_to_dir_df(get_dir_info(dir))
     table = Table(
         title=f'{param.upper()} [{dir}]',
@@ -61,12 +85,11 @@ def print_dir_df(param, dir):
         )
     for i in range(dir_df.shape[0]):
         d1 = dir_df.index[i]
-        d2,d3,d4,d5,d6,d7 = tuple([str(elem) for elem in dir_df.iloc[i, :]])
-        table.add_row(d1,d2,d3,d4,d5,d6,d7)
+        table.add_row(d1, *tuple([str(elem) for elem in dir_df.iloc[i, :]]))
     
     rich.print(table)
 
-def directory_status(**kwargs):
-    
+
+def directory_status(**kwargs):    
     for param, dir in kwargs.items():
         print_dir_df(param, dir)
