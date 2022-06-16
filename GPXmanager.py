@@ -6,6 +6,19 @@ import GPXcleaner as gc
 
 
 def raw_gpx_to_reuben_gpx(gpx_path):
+    '''
+    Converts activity.gpx -> pandas.DataFrame  -> activity.pkl
+
+    Parameters
+    ----------
+    gpx_path: str
+        path to .gpx file
+    
+    Returns
+    -------
+    pandas.DataFrame
+        containing meaningful data from provided .gpx file
+    '''
     
     raw_df = gc.gpx_to_dataframe(gpx_path)
     
@@ -48,6 +61,22 @@ def raw_gpx_to_reuben_gpx(gpx_path):
 
 
 def write_to_id_dir(gpx_path, backup_dir, extension='pkl'):
+    '''
+    Navigating function for .gpx file to .pkl frame
+
+    Parameters
+    ----------
+    gpx_path: str
+        path to .gpx file
+    backup_dir: str
+        path to backup directory
+    extension: str (default='pkl')
+        file extension for writing activity frame
+    
+    Returns
+    -------
+    None
+    '''
     
     gpx_df = raw_gpx_to_reuben_gpx(gpx_path)
     gpx_file_id = gpx_path[gpx_path.rfind('_') + 1 : gpx_path.find('.gpx')]
@@ -57,7 +86,7 @@ def write_to_id_dir(gpx_path, backup_dir, extension='pkl'):
             activity_ids = json.load(open(f'{backup_dir}/{activity}/{activity.lower()}_ids.json'))
             if int(gpx_file_id) in activity_ids:
                 gpx_file_dir = activity
-                continue
+                # continue
 
     gpx_file_path = f'{backup_dir}/{gpx_file_dir}/{gpx_file_id}.{extension}'
     
@@ -65,6 +94,11 @@ def write_to_id_dir(gpx_path, backup_dir, extension='pkl'):
         return
     
     if not os.path.isfile(gpx_file_path):
-        gpx_df.to_pickle(gpx_file_path)
+        if extension == 'pkl':
+            gpx_df.to_pickle(gpx_file_path)
+        if extension == 'csv':
+            gpx_df.to_csv(gpx_file_path)
+        if extension == 'sql':
+            gpx_df.to_sql(gpx_file_path)
     else:
         print('uh-oh')

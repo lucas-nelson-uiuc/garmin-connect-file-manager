@@ -6,10 +6,37 @@ from haversine import haversine, Unit
 
 
 def read_gpx_file(file_path):
+    '''
+    Read in and parse .gpx file
+
+    Parameters
+    ----------
+    file_path: str
+        path to .gpx file
+    
+    Returns
+    -------
+    GPX.Parse object
+    '''
     gpx_file = open(file_path)
     return gpxpy.parse(gpx_file)
 
+
 def gpx_to_dataframe(file_path):
+    '''
+    Extract meaningful data related to recorded points per segment per track
+    of passed .gpx file
+    
+    Parameters
+    ----------
+    file_path: str
+        path to .gpx file
+    
+    Returns
+    -------
+    pandas.DataFrame
+        containing data described above
+    '''
 
     points_skeleton = [
         [point.latitude, point.longitude, point.elevation, point.time,
@@ -26,17 +53,22 @@ def gpx_to_dataframe(file_path):
     
     return points_df
 
+
 def convert_date(time_col):
     return pd.to_datetime(time_col.dt.date)
+
 
 def convert_time(time_col):
     return time_col.dt.time
 
+
 def get_elevation_diff(elev_col):
     return elev_col.diff(1).fillna(0)
 
+
 def get_shifted_col(col):
     return col.shift(1)
+
 
 def calculate_haversine(list_de_lat_lon):
     lat1, lon1, lat2, lon2 = list_de_lat_lon
@@ -45,19 +77,24 @@ def calculate_haversine(list_de_lat_lon):
         unit=Unit.METERS
     )
 
+
 def get_moving_average_col(col, ma=5):
     return col.rolling(window=ma).mean().fillna(method='bfill')
+
 
 def calculate_gradient(elev_diff_col, dist_col):
     elev_diff_ma5 = get_moving_average_col(elev_diff_col)
     dist_col_ma5 = get_moving_average_col(dist_col)
     return elev_diff_ma5 / dist_col_ma5
 
+
 def drop_cols(df, *args):
     return df.drop(columns=list(args))
 
+
 def time_to_tz_native(t, tz_in, tz_out):
     return tz_in.localize(datetime.combine(datetime.today(), t)).astimezone(tz_out).time()
+
 
 def convert_timezone(time):
     return time_to_tz_native(

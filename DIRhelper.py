@@ -24,7 +24,6 @@ def get_dir_info(dir):
             keys: file type/size
             vals: statistic
     '''
-    
     if (len([d for d in os.listdir(dir) if not os.path.isdir(f'{dir}/{d}')]) == len(os.listdir(dir))):
         return {dir : {'empty' : {
             'gpx_files':0, 'gpx_sizes':0,

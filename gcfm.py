@@ -12,6 +12,18 @@ import DIRhelper as dh
 
 
 def validate_arguments(*args):
+    '''
+    Ensure user has passed valid arguments
+
+    Parameters
+    ----------
+    *args: list(export_dir, backup_dir)
+        export_dir: path to export directory
+        backup_dir: path to backup directory
+
+    INFO: DIRECTORY ORDER DOES NOT MATTER
+    '''
+
     counter = 0
     for dir in args[0]:
         assert os.path.exists(dir), f'{dir} does not exist'
@@ -19,47 +31,43 @@ def validate_arguments(*args):
         if '.DS_Store' in os.listdir(dir):
             os.remove(f'{dir}/.DS_Store')
         counter += 1
+    
     assert counter == 2, \
-        'Expected two arguments: python3 gcfm.py <backup-directory> <export-directory>'
+        '''
+        Expected two arguments:
+        >>> python3 gcfm.py <export-directory> <backup-directory>
+            <export-directory>: str, path to export_dir
+            <backup-directory>: str, path to backup_dir
+        '''
     return args[0]
-
-
-def fetch_activities_json(subdir_path):
-    json_fp = list(filter(
-        lambda f: f.startswith('activities') and f.endswith('.json'),
-        os.listdir(subdir_path)
-        ))[0]
-    return f'{subdir_path}/{json_fp}'
 
 
 if __name__ == '__main__':
     
+    #################################################
+    ############## preprocessing steps ##############
+    #################################################
+    
+    # validate arguments in command line
     args = validate_arguments(sys.argv[1:])
+    
+    # detect which argument points to which directory
     backup_dir = args['backup' in args[1]]
     export_dir = args[backup_dir == args[0]]
 
+
+    #################################################
+    ### printing information for export directory ###
+    #################################################
+    
     print()
     dh.directory_status(export_directory=export_dir)
     print()
-    
-    # with alive_bar(
-    #     total=len(os.listdir(export_dir)),
-    #     dual_line=True,
-    #     title='Converting JSON files ',
-    #     spinner='waves3',
-    #     bar='filling',
-    #     monitor='[{percent:.2f}%] {count}/{total}',
-    #     stats='({eta})',
-    #     force_tty=True,
-    #     ctrl_c=True
-    # ) as bar:
-    #     for subdir in sorted(os.listdir(export_dir)):
-    #         try:
-    #             raw_json_fp = fetch_activities_json(f'{export_dir}/{subdir}')
-    #             jm.raw_json_to_reuben_json(raw_json_fp, backup_dir)
-    #             bar()
-    #         except FileNotFoundError:
-    #             print('<Error: file not found>')
+
+
+    #################################################
+    ######### gathering files for reference #########
+    #################################################
 
     with alive_bar(
         total=5,
@@ -101,6 +109,10 @@ if __name__ == '__main__':
         bar()
 
 
+    #################################################
+    ##### moving export data to backup folders ######
+    #################################################
+    
     for sub_dir in sorted(os.listdir(export_dir)):
         gpx_files = map(
                 lambda g: f'{export_dir}/{sub_dir}/{g}',
@@ -130,6 +142,16 @@ if __name__ == '__main__':
                     )
                     continue
 
+
+    #################################################
+    ### printing information for backup directory ###
+    #################################################
+
     print()
     dh.directory_status(backup_directory=backup_dir)
     print()
+
+
+    #################################################
+    ### process complete - happy programming mate ###
+    #################################################
