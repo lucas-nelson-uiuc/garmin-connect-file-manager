@@ -1,5 +1,4 @@
 import os
-import json
 
 from pandas.core.frame import DataFrame
 
@@ -8,6 +7,23 @@ from rich.table import Table
 
 
 def get_dir_info(dir):
+    '''
+    Gathers file information per subdirectory of passed directory (dir)
+    to be passed to dir_info_to_dir_df
+
+    Parameters
+    ----------
+    dir: str
+        path to directory
+
+    Returns
+    -------
+    dict
+        keys: directory (or `empty`)
+        vals: dict
+            keys: file type/size
+            vals: statistic
+    '''
     
     if (len([d for d in os.listdir(dir) if not os.path.isdir(f'{dir}/{d}')]) == len(os.listdir(dir))):
         return {dir : {'empty' : {
@@ -45,10 +61,17 @@ def dir_info_to_dir_df(dir_info):
     directory's information, such as total activities,
     activity types, and corresponding descriptive statistics
 
-    | Parameters |
-    > dir_info
+    Parameters
+    ----------
+    dir_info
         Returned value from get_dir_info, a dictionary
         containing descriptive statistics of a provided directory
+
+    Returns
+    -------
+    pandas.DataFrame
+        rows: directories
+        cols: file sizes/types
     '''
 
     dir_idxs = list(dir_info.values())[0].keys()
@@ -60,11 +83,19 @@ def dir_info_to_dir_df(dir_info):
 
 def print_dir_df(param, dir):
     '''
-    Display directory statistics to terminal
+    Gather and display directory statistics to terminal
 
-    | Parameters |
-    > param
-    > dir
+    Parameters
+    ----------
+    param: str
+        title of directory to be displayed in terminal (e.g. 'backup_directory')
+    dir: str
+        path to directory
+
+    Returns
+    -------
+    std.out
+        rich.Table printed to terminal
     '''
 
     dir_df = dir_info_to_dir_df(get_dir_info(dir))
@@ -90,6 +121,36 @@ def print_dir_df(param, dir):
     rich.print(table)
 
 
-def directory_status(**kwargs):    
+def directory_status(**kwargs):
+    '''
+    Caller function for DIRhelper functions
+
+    Parameters
+    ----------
+    *kwargs: tuple(kwarg=val, ... )
+        kwarg -> title of table displaying directory information
+        val   -> str: path to directory
+    
+    Example
+    -------
+    >>> directory_status(export_directory='../export-garmin-connect')
+
+                                 EXPORT_DIRECTORY [../export-garmin-connect]                                  
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┓
+    ┃ Directory                        ┃ Gpx_Files ┃ Gpx_Sizes ┃ Json_Files ┃ Json_Sizes ┃ Pkl_Files ┃ Pkl_Sizes ┃
+    ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━┩
+    │ 2022-03-16_garmin_connect_export │ 237       │ 58952248  │ 7          │ 1599888    │ 0         │ 0         │
+    │ 2022-03-17_garmin_connect_export │ 1         │ 441798    │ 4          │ 15318      │ 0         │ 0         │
+    │ 2022-03-19_garmin_connect_export │ 1         │ 362652    │ 4          │ 13999      │ 0         │ 0         │
+    │ 2022-03-22_garmin_connect_export │ 3         │ 1083357   │ 4          │ 24526      │ 0         │ 0         │
+    │ 2022-03-24_garmin_connect_export │ 3         │ 1083707   │ 4          │ 24569      │ 0         │ 0         │
+    │ 2022-03-28_garmin_connect_export │ 1         │ 506637    │ 4          │ 14010      │ 0         │ 0         │
+    │ 2022-03-31_garmin_connect_export │ 1         │ 385970    │ 4          │ 14006      │ 0         │ 0         │
+    │ 2022-05-17_garmin_connect_export │ 20        │ 7416137   │ 4          │ 115363     │ 0         │ 0         │
+    │ 2022-06-04_garmin_connect_export │ 30        │ 12060046  │ 4          │ 168450     │ 0         │ 0         │
+    │ TOTAL                            │ 297       │ 82292552  │ 39         │ 1990129    │ 0         │ 0         │
+    └──────────────────────────────────┴───────────┴───────────┴────────────┴────────────┴───────────┴───────────┘
+    '''
+
     for param, dir in kwargs.items():
         print_dir_df(param, dir)
