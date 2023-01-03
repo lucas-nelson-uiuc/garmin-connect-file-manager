@@ -40,7 +40,8 @@ def gpx_to_dataframe(file_path):
 
     points_skeleton = [
         [point.latitude, point.longitude, point.elevation, point.time,
-        float(point.extensions[0].getchildren()[1].text)]
+        float(point.extensions[0].getchildren()[0].text),
+        float(point.extensions[0].getchildren()[1].text),]
         for track in read_gpx_file(file_path).tracks
         for segment in track.segments
         for point in segment.points
@@ -48,9 +49,9 @@ def gpx_to_dataframe(file_path):
 
     points_df =  pd.DataFrame(
         points_skeleton,
-        columns=['latitude', 'longitude', 'elevation', 'time', 'heart_rate']
-    ).fillna({'elevation':0})
-    
+        columns=['latitude', 'longitude', 'elevation', 'time', 'heart_rate', 'cadence']
+    ).fillna(method='ffill')
+
     return points_df
 
 

@@ -28,14 +28,13 @@ def generate_activity_directories(activity_types, activity_ids, backup_dir):
     FileNotFoundError
         when json file is not written to respective activity directory
     '''
-    backup_id_dict = {}
+    backup_id_dict = {type.title():[] for type in activity_types}
     
     # populate dictionary like {activity_type:[activity_ids]} for all
     # unique activity_types in activities_df
     for type, id in zip(activity_types, activity_ids):
         if not os.path.isdir(f'{backup_dir}/{type.title()}'):
             os.mkdir(f'{backup_dir}/{type.title()}')
-            backup_id_dict[type.title()] = []
         backup_id_dict[type.title()].append(id)
     
     # "dump" each activity_types information into its respective directory

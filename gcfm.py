@@ -55,6 +55,23 @@ if __name__ == '__main__':
     backup_dir = args['backup' in args[1]]
     export_dir = args[backup_dir == args[0]]
 
+    # gathering data from Garmin Connect
+    USERNAME = 'lucas.nelson.uiuc@gmail.com'
+    FAUXWORD = 'LucasLeeNelson95'
+    COUNT = 'all'
+    GC_DIR_PATH = f"{datetime.strftime(datetime.today(), '%Y-%m-%d')}_garmin_connect_export"
+
+    os.chdir('../garmin-connect-export')
+    if not f"{GC_DIR_PATH}_gpx" in os.listdir(export_dir):
+        gpx_cmd = f"python3 gcexport.py --username={USERNAME} --password={FAUXWORD} -c={COUNT}"
+        os.system(gpx_cmd)
+        os.system(f"mv {GC_DIR_PATH} {export_dir}/{GC_DIR_PATH}_gpx")
+    if not f"{GC_DIR_PATH}_fit" in os.listdir(export_dir):
+        fit_cmd = f"python3 gcexport.py --username={USERNAME} --password={FAUXWORD} -c={COUNT} -f='original' --unzip"
+        os.system(fit_cmd)
+        os.system(f"mv {GC_DIR_PATH} {export_dir}/{GC_DIR_PATH}_fit")
+    os.chdir('../garmin-connect-file-manager')
+
 
     #################################################
     ### printing information for export directory ###
@@ -103,7 +120,7 @@ if __name__ == '__main__':
             'Inconsistent number of activities'
         # ensuring uniqueness in activityIDs
         bar.text = '  -> Checking uniqueness across database'
-        assert array_equal(array(list(map(lambda x: int(x), sorted(activityIDs)))), activity_df_ids),\
+        assert array_equal(array(sorted(list(map(lambda x: int(x), sorted(activityIDs))))), array(sorted(activity_df_ids))),\
             'Non-unique IDs found in database'
         print('  -> Tests successful!')
         bar()
@@ -114,33 +131,35 @@ if __name__ == '__main__':
     #################################################
     
     for sub_dir in sorted(os.listdir(export_dir)):
-        gpx_files = map(
-                lambda g: f'{export_dir}/{sub_dir}/{g}',
-                filter(
-                    lambda f: f.endswith('.gpx'),
-                    os.listdir(f'{export_dir}/{sub_dir}')
+        if sub_dir.endswith('_gpx'):
+            gpx_files = map(
+                    lambda g: f'{export_dir}/{sub_dir}/{g}',
+                    filter(
+                        lambda f: f.endswith('.gpx'),
+                        os.listdir(f'{export_dir}/{sub_dir}')
+                        )
                     )
-                )
-        with alive_bar(
-            total=len(os.listdir(f'{export_dir}/{sub_dir}')),
-            dual_line=True,
-            title=f"Exporting {datetime.strptime(sub_dir[:sub_dir.find('_')], '%Y-%m-%d').strftime('%b %d, %Y')}",
-            spinner='waves2',
-            bar='filling',
-            monitor='[{percent:.2%}] {count}/{total}',
-            stats='(ETA: {eta})',
-            force_tty=True,
-            ctrl_c=True) as bar:
-            for gpx_file in gpx_files:
-                try:
-                    gm.raw_gpx_to_reuben_gpx(gpx_file)
-                    gm.write_to_id_dir(gpx_file, backup_dir, extension='pkl')
-                    bar()
-                except:
-                    bar.text = "\t< No GPX Points > {}".format(
-                        gpx_file[gpx_file.rfind('_') + 1 : gpx_file.find('.gpx')]
-                    )
-                    continue
+            with alive_bar(
+                total=len(os.listdir(f'{export_dir}/{sub_dir}')),
+                dual_line=True,
+                title=f"Exporting {datetime.strptime(sub_dir[:sub_dir.find('_')], '%Y-%m-%d').strftime('%b %d, %Y')}",
+                spinner='waves2',
+                bar='filling',
+                monitor='[{percent:.2%}] {count}/{total}',
+                stats='(ETA: {eta})',
+                force_tty=True,
+                ctrl_c=True) as bar:
+                for gpx_file in gpx_files:
+                    try:
+                        gm.raw_gpx_to_reuben_gpx(gpx_file)
+                        gm.write_to_id_dir(gpx_file, backup_dir, extension='pkl')
+                        gm.write_to_id_dir(gpx_file, backup_dir, extension='csv')
+                        bar()
+                    except:
+                        bar.text = "\t< No GPX Points > {}".format(
+                            gpx_file[gpx_file.rfind('_') + 1 : gpx_file.find('.gpx')]
+                        )
+                        continue
 
 
     #################################################

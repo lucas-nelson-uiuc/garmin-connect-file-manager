@@ -3,6 +3,7 @@ import json
 import warnings; warnings.filterwarnings('ignore')
 
 import GPXcleaner as gc
+import FITmanager as fm
 
 
 def raw_gpx_to_reuben_gpx(gpx_path):
@@ -24,6 +25,9 @@ def raw_gpx_to_reuben_gpx(gpx_path):
     
     # create copy of dataframe for security
     points_df = raw_df.copy()
+
+    # add identifier column
+    points_df['activity_id'] = gpx_path[gpx_path.rfind('activity_') + 9:gpx_path.rfind('.gpx')]
 
     # convert date and time to respective datetime.objects
     points_df['date'] = gc.convert_date(points_df['time'])
@@ -49,7 +53,10 @@ def raw_gpx_to_reuben_gpx(gpx_path):
     )
     points_df['time_between_measure'] = points_df['time_elapsed'].diff(1).fillna(0).astype(int)
     points_df['speed_kmh'] = points_df['speed_kmh'] = points_df[['distance', 'time_between_measure']].apply(lambda x: (x[0]/x[1]) * 3.6, axis=1).fillna(0)
-    
+
+    # get power (watts) data
+    points_df['power'] = fm.return_power_data(gpx_path, n=points_df.shape[0])
+
     # smooth (using moving average) speed and gradient
     points_df['speed_kmh_ma5'] = gc.get_moving_average_col(points_df['speed_kmh'])
     points_df['gradient'] = gc.calculate_gradient(points_df['elevation_diff'], points_df['distance'])
@@ -81,12 +88,14 @@ def write_to_id_dir(gpx_path, backup_dir, extension='pkl'):
     gpx_df = raw_gpx_to_reuben_gpx(gpx_path)
     gpx_file_id = gpx_path[gpx_path.rfind('_') + 1 : gpx_path.find('.gpx')]
 
-    for activity in os.listdir(backup_dir):
-        if not activity in ['activities_reference.pkl', '.DS_Store', 'user_overview.json', 'activities_exhausted.pkl']:
+    activity_dirs = filter(lambda x: not (x.startswith('.') or x.endswith('.csv') or x.endswith('.pkl') or x.endswith('.json')), os.listdir(backup_dir))
+    for activity in activity_dirs:
+        if not activity in ['activities_reference.pkl', '.DS_Store', 'user_overview.json', 'activities_exhausted.pkl', 'activiites']:
             activity_ids = json.load(open(f'{backup_dir}/{activity}/{activity.lower()}_ids.json'))
             if int(gpx_file_id) in activity_ids:
                 gpx_file_dir = activity
-                # continue
+
+    gpx_file_dir = 'Cycling' if activity in ['Cycling', 'Road_Biking', 'Virtual_Ride'] else activity
 
     gpx_file_path = f'{backup_dir}/{gpx_file_dir}/{gpx_file_id}.{extension}'
     
