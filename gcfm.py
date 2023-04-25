@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # gathering data from Garmin Connect
     USERNAME = 'lucas.nelson.uiuc@gmail.com'
-    FAUXWORD = 'LucasLeeNelson95'
+    FAUXWORD = '******'
     COUNT = 'all'
     GC_DIR_PATH = f"{datetime.strftime(datetime.today(), '%Y-%m-%d')}_garmin_connect_export"
 
