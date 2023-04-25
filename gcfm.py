@@ -56,7 +56,7 @@ if __name__ == '__main__':
     export_dir = args[backup_dir == args[0]]
 
     # gathering data from Garmin Connect
-    USERNAME = 'lucas.nelson.uiuc@gmail.com'
+    USERNAME = '******'
     FAUXWORD = '******'
     COUNT = 'all'
     GC_DIR_PATH = f"{datetime.strftime(datetime.today(), '%Y-%m-%d')}_garmin_connect_export"
